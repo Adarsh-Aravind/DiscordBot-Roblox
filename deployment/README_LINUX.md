@@ -1,7 +1,7 @@
-# Deploying Bit-Bot to Ubuntu
+# Deploying RuneJerry to Ubuntu
 
 ## 1. Transfer Files
-Copy your entire project folder to your Ubuntu machine (e.g., to `/home/youruser/bitbot`).
+Copy your entire project folder to your Ubuntu machine (e.g., to `/home/youruser/runejerry`).
 
 ## 2. Install System Dependencies
 Run this on your Ubuntu terminal:
@@ -19,8 +19,8 @@ pip install -r requirements.txt
 ```
 
 ## 4. Configure Service
-1.  Open `deployment/start.sh` and `deployment/bitbot.service`.
-2.  Change `/home/youruser/bitbot` to the **actual path** on your Ubuntu machine.
+1.  Open `deployment/start.sh` and `deployment/runejerry.service`.
+2.  Change `/home/youruser/runejerry` to the **actual path** on your Ubuntu machine.
 3.  Change `youruser` to your **actual username**.
 4.  Make the script executable:
     ```bash
@@ -30,15 +30,15 @@ pip install -r requirements.txt
 ## 5. Enable Auto-Restart
 Copy the service file and enable it:
 ```bash
-sudo cp deployment/bitbot.service /etc/systemd/system/
+sudo cp deployment/runejerry.service /etc/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl enable bitbot
-sudo systemctl start bitbot
+sudo systemctl enable runejerry
+sudo systemctl start runejerry
 ```
 
 ## 6. Check Status
 ```bash
-sudo systemctl status bitbot
+sudo systemctl status runejerry
 ```
 If it says **active (running)**, you are good to go!
 It will now automatically restart if it crashes or if the PC reboots.

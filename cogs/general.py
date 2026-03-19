@@ -14,12 +14,15 @@ class General(commands.Cog):
     @commands.command()
     async def help(self, ctx):
         embed = discord.Embed(
-            title="🤖 Bit Beast Bot Commands",
+            title="🤖 RuneJerry Commands",
             color=discord.Color.blue()
         )
 
-        embed.add_field(name="🏎️ F1 Commands", value="`#f1` - Shows current season info (Drivers, Constructors, Next Race)\n`#f1next` - Shows info and a picture of the next race circuit\n`#f1last` - Shows info and results of the latest race\n`#f1c {circuit}` - Shows information and previous winner for a specific circuit\n`#f1con` - Shows only constructor standings\n`#f1dri` - Shows only driver standings", inline=False)
-        embed.add_field(name="⚙️ General", value="`#status` - Shows the status of the server\n`#ping` - Shows the bot's latency", inline=False)
+        embed.add_field(name="⭐ Leveling", value="`#rank` - See your current level and XP\n`#levelreset [user]` - Reset a user's level or all levels (Owner Only)", inline=False)
+        embed.add_field(name="💬 Messaging (Owner Only)", value="`#reply <user_id> <message>` - Reply to a user via DM\n`#say <channel_id> <message>` - Send a message to a specific channel", inline=False)
+        embed.add_field(name="🔍 Roblox Search", value="`#roblox <username>` - Search for public Roblox account details", inline=False)
+        embed.add_field(name="🎉 Giveaways (Owner Only)", value="`#giveaway start <duration> <winners> <prize>` - Start a giveaway\n`#giveaway reroll <message_id>` - Reroll a giveaway", inline=False)
+        embed.add_field(name="⚙️ General", value="`#status` - Shows the status of the server\n`#ping` - Shows the bot's latency\n`#setpresence <type> <text>` - Change the bot's status (Owner Only)", inline=False)
 
         await ctx.send(embed=embed)
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Navigate to the bot directory
-cd /home/youruser/bitbot
+cd /home/youruser/runejerry
 
 # Activate Virtual Environment
 source venv/bin/activate

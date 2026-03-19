@@ -1,5 +1,5 @@
 [Unit]
-Description=Bit-Bot Discord Service
+Description=RuneJerry Discord Service
 # Wait for actual internet connection, not just networking subsystem
 After=network-online.target
 Wants=network-online.target
@@ -8,8 +8,8 @@ Wants=network-online.target
 # Replace 'youruser' with your actual Ubuntu username
 User=youruser
 Group=youruser
-WorkingDirectory=/home/youruser/bitbot
-ExecStart=/bin/bash /home/youruser/bitbot/deployment/start.sh
+WorkingDirectory=/home/youruser/runejerry
+ExecStart=/bin/bash /home/youruser/runejerry/deployment/start.sh
 
 # Restart logic: Always restart, wait 10s between attempts
 Restart=always

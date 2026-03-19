@@ -48,6 +48,6 @@ __pycache__/
 *$py.class
 
 .env
-database.db
+runejerry.db
 __pycache__/
 .vs/

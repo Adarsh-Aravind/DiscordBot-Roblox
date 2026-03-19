@@ -1,4 +1,4 @@
-﻿import os
+import os
 import logging
 import discord
 from discord.ext import commands
@@ -7,21 +7,36 @@ import aiosqlite
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
+OWNER_ID = os.getenv("OWNER_ID")
+OWNER_IDS_STR = os.getenv("OWNER_IDS")
+
+owner_ids = set()
+if OWNER_ID and OWNER_ID.strip().isdigit():
+    owner_ids.add(int(OWNER_ID.strip()))
+if OWNER_IDS_STR:
+    for oid in OWNER_IDS_STR.split(","):
+        oid = oid.strip()
+        if oid.isdigit():
+            owner_ids.add(int(oid))
 
 logging.basicConfig(level=logging.INFO)
 
 intents = discord.Intents.default()
 intents.message_content = True
 
-bot = commands.Bot(
-    command_prefix="#",
-    intents=intents,
-    help_command=None
-)
+kwargs = {
+    "command_prefix": "#",
+    "intents": intents,
+    "help_command": None
+}
+if owner_ids:
+    kwargs["owner_ids"] = owner_ids
+
+bot = commands.Bot(**kwargs)
 
 @bot.event
 async def setup_hook():
-    bot.db = await aiosqlite.connect("database.db")
+    bot.db = await aiosqlite.connect("runejerry.db")
 
     await bot.db.execute("""
     CREATE TABLE IF NOT EXISTS levels (
@@ -60,7 +75,8 @@ async def setup_hook():
         "cogs.leveling",
         "cogs.antispam",
         "cogs.youtube",
-        "cogs.f1"
+        "cogs.roblox",
+        "cogs.giveaway"
     ]:
         await bot.load_extension(ext)
 
