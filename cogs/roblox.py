@@ -3,6 +3,9 @@ from discord.ext import commands
 import aiohttp
 import asyncio
 import datetime
+import logging
+
+log = logging.getLogger("runejerry.roblox")
 
 class RobloxSearch(commands.Cog):
     def __init__(self, bot):
@@ -137,7 +140,7 @@ class RobloxSearch(commands.Cog):
                     color=discord.Color.red()
                 )
                 await ctx.send(embed=embed)
-                print(f"[Roblox Search Error] {e}")
+                log.warning("Roblox search error: %s", e)
 
 async def setup(bot):
     await bot.add_cog(RobloxSearch(bot))

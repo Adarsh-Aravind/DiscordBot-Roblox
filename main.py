@@ -5,34 +5,23 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import aiosqlite
 
+import config
+
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
-OWNER_ID = os.getenv("OWNER_ID")
-OWNER_IDS_STR = os.getenv("OWNER_IDS")
-
-owner_ids = set()
-if OWNER_ID and OWNER_ID.strip().isdigit():
-    owner_ids.add(int(OWNER_ID.strip()))
-if OWNER_IDS_STR:
-    for oid in OWNER_IDS_STR.split(","):
-        oid = oid.strip()
-        if oid.isdigit():
-            owner_ids.add(int(oid))
 
 logging.basicConfig(level=logging.INFO)
+log = logging.getLogger("runejerry")
 
 intents = discord.Intents.default()
 intents.message_content = True
 
-kwargs = {
-    "command_prefix": "#",
-    "intents": intents,
-    "help_command": None
-}
-if owner_ids:
-    kwargs["owner_ids"] = owner_ids
-
-bot = commands.Bot(**kwargs)
+bot = commands.Bot(
+    command_prefix=config.COMMAND_PREFIX,
+    intents=intents,
+    help_command=None,
+    owner_ids=config.OWNER_IDS,
+)
 
 @bot.event
 async def setup_hook():
@@ -82,7 +71,7 @@ async def setup_hook():
 
 @bot.event
 async def on_ready():
-    print(f"Logged in as {bot.user}")
+    log.info("Logged in as %s (ID: %s)", bot.user, bot.user.id)
 
 # 🔥 ONLY ONE PLACE PROCESSING COMMANDS
 @bot.event
@@ -93,4 +82,6 @@ async def on_message(message):
     await bot.process_commands(message)
 
 def run():
+    if not TOKEN:
+        raise RuntimeError("DISCORD_TOKEN is not set. Add it to your .env file.")
     bot.run(TOKEN, reconnect=True)

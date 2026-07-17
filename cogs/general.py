@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-OWNER_ID = 615174036733034538
+import config
 
 class General(commands.Cog):
     def __init__(self, bot):
@@ -18,7 +18,7 @@ class General(commands.Cog):
             color=discord.Color.blue()
         )
 
-        embed.add_field(name="⭐ Leveling", value="`#rank` - See your current level and XP\n`#levelreset [user]` - Reset a user's level or all levels (Owner Only)", inline=False)
+        embed.add_field(name="⭐ Leveling", value="`#rank` - See your current level and XP\n`#leaderboard` - See the top 10 members by XP\n`#levelreset [user]` - Reset a user's level or all levels (Owner Only)", inline=False)
         embed.add_field(name="💬 Messaging (Owner Only)", value="`#reply <user_id> <message>` - Reply to a user via DM\n`#say <channel_id> <message>` - Send a message to a specific channel", inline=False)
         embed.add_field(name="🔍 Roblox Search", value="`#roblox <username>` - Search for public Roblox account details", inline=False)
         embed.add_field(name="🎉 Giveaways (Owner Only)", value="`#giveaway start <duration> <winners> <prize>` - Start a giveaway\n`#giveaway reroll <message_id>` - Reroll a giveaway", inline=False)
@@ -47,7 +47,7 @@ class General(commands.Cog):
 
     @commands.command(name="setpresence")
     async def set_presence(self, ctx, activity_type: str, *, text: str):
-        if ctx.author.id != OWNER_ID:
+        if not config.is_owner(ctx.author.id):
             return
 
         activity_type = activity_type.lower()

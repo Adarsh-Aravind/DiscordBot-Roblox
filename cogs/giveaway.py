@@ -4,6 +4,9 @@ import re
 import datetime
 import random
 import asyncio
+import logging
+
+log = logging.getLogger("runejerry.giveaway")
 
 class JoinGiveawayView(discord.ui.View):
     def __init__(self, bot):
@@ -226,17 +229,16 @@ class Giveaway(commands.Cog):
             cursor = await self.bot.db.execute("SELECT message_id, channel_id, guild_id, prize, winners_count, end_time, host_id FROM giveaways WHERE ended = 0")
             giveaways = await cursor.fetchall()
             
-            for index in range(len(giveaways)):
-                message_id, channel_id, guild_id, prize, winners_count, end_time_str, host_id = giveaways[index]
+            for message_id, channel_id, guild_id, prize, winners_count, end_time_str, host_id in giveaways:
                 end_time = datetime.datetime.fromisoformat(end_time_str)
-                
+
                 # Check if it should end
                 if now >= end_time:
                     await self.end_giveaway(message_id, channel_id, guild_id, prize, winners_count, host_id)
                     # Yield slightly so loop doesn't block concurrently
                     await asyncio.sleep(0.1)
         except Exception as e:
-            print(f"[Giveaway Task Error] Processing failed: {e}")
+            log.warning("Giveaway task processing failed: %s", e)
 
     async def end_giveaway(self, message_id, channel_id, guild_id, prize, winners_count, host_id):
         """Ends the giveaway by choosing a winner, modifying embed, and announcing it."""
