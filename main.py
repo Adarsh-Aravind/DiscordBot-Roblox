@@ -50,6 +50,14 @@ async def setup_hook():
     )
     """)
 
+    await bot.db.execute("""
+    CREATE TABLE IF NOT EXISTS kick (
+        slug TEXT PRIMARY KEY,
+        is_live INTEGER DEFAULT 0,
+        last_stream_id TEXT
+    )
+    """)
+
     # Migrate existing last_video to history to avoid re-notifying
     await bot.db.execute("""
     INSERT OR IGNORE INTO youtube_history (channel_id, video_id)
@@ -64,6 +72,7 @@ async def setup_hook():
         "cogs.leveling",
         "cogs.antispam",
         "cogs.youtube",
+        "cogs.kick",
         "cogs.roblox",
         "cogs.giveaway"
     ]:

@@ -8,6 +8,7 @@ RuneJerry is a robust, fully-featured, and highly customizable Discord bot built
 - **Interactive Giveaway System**: Facilitates server giveaways through persistent UI buttons. Features include automated winner selection, timed execution, and manual host control.
 - **Automated Leveling**: Utilizes a persistent SQLite backend to track active chat participation, passively granting users XP and broadcasting level-up milestones.
 - **YouTube Notifications**: Monitors specified YouTube channels and broadcasts rich embed notifications the moment new videos are uploaded.
+- **Kick Notifications**: Polls a Kick channel and announces with a rich embed when the stream goes live.
 - **Anti-Spam & Auto-Moderation**: Actively monitors text channels, automatically restricting excessive mentions, invite links, and spam behavior to preserve server integrity.
 - **Direct Messaging Relay**: Intercepts direct messages sent to the bot and forwards them to the bot owner, allowing remote two-way communication.
 
