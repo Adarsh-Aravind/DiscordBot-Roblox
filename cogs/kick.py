@@ -4,14 +4,23 @@ import discord
 from discord.ext import commands, tasks
 from curl_cffi.requests import AsyncSession
 
+import config
+
 log = logging.getLogger("runejerry.kick")
 
 # Kick channel to watch: https://kick.com/runejerry
 KICK_SLUG = "runejerry"
 # Discord channel that go-live announcements are posted to.
 KICK_CHANNEL_ID = 1527727884264018072
-# Set to False to announce streams without pinging @everyone.
+# Set to False to announce streams without pinging the Live Ping role.
 KICK_PING = True
+
+# Discord caps thread names at 100 characters; threads archive after 24h.
+THREAD_NAME_LIMIT = 100
+THREAD_ARCHIVE_MINUTES = 1440
+
+# Permit role pings while making an accidental @everyone impossible.
+PING_MENTIONS = discord.AllowedMentions(everyone=False, users=False, roles=True)
 # How often (in minutes) to poll Kick for the live status.
 KICK_POLL_MINUTES = 2
 
@@ -133,11 +142,26 @@ class Kick(commands.Cog):
         if was_live or last_stream_id == stream_id:
             return
 
-        content = "@everyone" if KICK_PING else None
+        role_id = config.LIVE_PING_ROLE_ID
+        content = f"<@&{role_id}>" if (KICK_PING and role_id) else None
         try:
-            await channel.send(content=content, embed=self._build_embed(data, livestream))
+            message = await channel.send(
+                content=content,
+                embed=self._build_embed(data, livestream),
+                allowed_mentions=PING_MENTIONS,
+            )
         except discord.HTTPException as e:
             log.warning("Failed to send Kick notification: %s", e)
+            return
+
+        title = livestream.get("session_title") or "Stream"
+        try:
+            await message.create_thread(
+                name=f"🔴 {title}"[:THREAD_NAME_LIMIT],
+                auto_archive_duration=THREAD_ARCHIVE_MINUTES,
+            )
+        except (discord.HTTPException, AttributeError) as e:
+            log.warning("Could not create Kick stream thread: %s", e)
 
     @check.before_loop
     async def before_check(self):

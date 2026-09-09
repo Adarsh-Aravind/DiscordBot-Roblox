@@ -51,3 +51,6 @@ __pycache__/
 runejerry.db
 __pycache__/
 .vs/
+
+# Deploy artifacts (may contain secrets)
+*.zip

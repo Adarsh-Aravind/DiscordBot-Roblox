@@ -6,17 +6,27 @@ from discord.ext import commands, tasks
 import feedparser
 import aiohttp
 
+import config
+
 log = logging.getLogger("runejerry.youtube")
 
 CHANNELS = {
-    "UCWOMTp0BLi41FTn6ouh_mdg": int(os.getenv("YT_CHANNEL_1", 0)),
-    "UCCYq8CHiJR3Y8IEME0SgNUQ": int(os.getenv("YT_CHANNEL_2", 0)),
-    "UCKK4jwSOaKBSTqQjNRbndng": int(os.getenv("YT_CHANNEL_3", 0)),
+    "UCWOMTp0BLi41FTn6ouh_mdg": config.env_int("YT_CHANNEL_1"),
+    "UCCYq8CHiJR3Y8IEME0SgNUQ": config.env_int("YT_CHANNEL_2"),
+    "UCKK4jwSOaKBSTqQjNRbndng": config.env_int("YT_CHANNEL_3"),
 }
 
-# Set YT_PING=0 in the environment to announce videos without pinging @everyone.
-PING_EVERYONE = os.getenv("YT_PING", "1") != "0"
+# Set YT_PING=0 in the environment to announce uploads without any ping.
+PING_ENABLED = os.getenv("YT_PING", "1") != "0"
 FEED_URL = "https://www.youtube.com/feeds/videos.xml?channel_id={}"
+
+# Discord caps thread names at 100 characters.
+THREAD_NAME_LIMIT = 100
+# Threads auto-archive after 24h of silence.
+THREAD_ARCHIVE_MINUTES = 1440
+
+# Permit role pings while making an accidental @everyone impossible.
+PING_MENTIONS = discord.AllowedMentions(everyone=False, users=False, roles=True)
 
 
 class YouTube(commands.Cog):
@@ -34,6 +44,21 @@ class YouTube(commands.Cog):
         self.check.cancel()
         if self.session:
             await self.session.close()
+
+    async def _open_thread(self, message, title: str):
+        """Start a discussion thread on an announcement.
+
+        Keeps chatter about each upload in one place instead of flooding the
+        channel. Failing to create it must never stop the notification loop.
+        """
+        name = f"💬 {title}"[:THREAD_NAME_LIMIT]
+        try:
+            await message.create_thread(
+                name=name, auto_archive_duration=THREAD_ARCHIVE_MINUTES
+            )
+        except (discord.HTTPException, AttributeError) as e:
+            # AttributeError covers channel types that can't hold threads.
+            log.warning("Could not create thread for %s: %s", title, e)
 
     @tasks.loop(minutes=5)
     async def check(self):
@@ -90,15 +115,29 @@ class YouTube(commands.Cog):
             if has_history is None:
                 continue
 
+            title = latest_entry.title
+            role_id = config.VIDEO_PING_ROLE_ID
+
             embed = discord.Embed(
                 title=f"🎥 {latest_entry.author} just posted a video! Go check it out!",
-                description=f"**[{latest_entry.title}](https://www.youtube.com/watch?v={video_id})**",
+                description=f"**[{title}](https://www.youtube.com/watch?v={video_id})**",
                 color=discord.Color.red(),
             )
             embed.set_image(url=f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg")
 
-            content = "Hey! @everyone" if PING_EVERYONE else None
-            await channel.send(content=content, embed=embed)
+            content = f"<@&{role_id}>" if (PING_ENABLED and role_id) else None
+            # tasks.Loop stops for good on an unhandled HTTPException, so a
+            # single bad send (missing perms, over-long title) would silently
+            # end all future checks. Log and move on to the next channel.
+            try:
+                message = await channel.send(
+                    content=content, embed=embed, allowed_mentions=PING_MENTIONS
+                )
+            except discord.HTTPException as e:
+                log.warning("Failed to send YouTube notification for %s: %s", yt_id, e)
+                continue
+
+            await self._open_thread(message, title)
 
     @check.before_loop
     async def before_check(self):

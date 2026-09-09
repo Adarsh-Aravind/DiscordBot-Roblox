@@ -15,6 +15,10 @@ log = logging.getLogger("runejerry")
 
 intents = discord.Intents.default()
 intents.message_content = True
+# Raid protection counts joins, which needs the privileged Server Members
+# Intent. It must ALSO be enabled in the Discord Developer Portal
+# (Bot -> Privileged Gateway Intents) or login fails outright.
+intents.members = True
 
 bot = commands.Bot(
     command_prefix=config.COMMAND_PREFIX,
@@ -71,6 +75,8 @@ async def setup_hook():
         "cogs.messaging",
         "cogs.leveling",
         "cogs.antispam",
+        "cogs.raid",
+        "cogs.pingroles",
         "cogs.youtube",
         "cogs.kick",
         "cogs.roblox",
@@ -90,7 +96,44 @@ async def on_message(message):
 
     await bot.process_commands(message)
 
+@bot.event
+async def on_command_error(ctx, error):
+    # The "." prefix means plenty of ordinary chat ("...", ".", ".gg") parses as
+    # a command. discord.py's default handler logs an ERROR + traceback for each
+    # one, so unknown commands are swallowed here instead of flooding the log.
+    if isinstance(error, commands.CommandNotFound):
+        return
+
+    # Owner-only commands stay invisible to everyone else.
+    if isinstance(error, commands.NotOwner):
+        return
+
+    if isinstance(error, commands.MissingRequiredArgument):
+        usage = f"{config.COMMAND_PREFIX}{ctx.command.qualified_name} {ctx.command.signature}"
+        await ctx.send(f"❌ Missing `{error.param.name}`. Usage: `{usage.strip()}`")
+        return
+
+    if isinstance(error, commands.BadArgument):
+        await ctx.send("❌ I couldn't understand one of those arguments.")
+        return
+
+    log.error("Error in command %s", ctx.command, exc_info=error)
+
 def run():
     if not TOKEN:
         raise RuntimeError("DISCORD_TOKEN is not set. Add it to your .env file.")
-    bot.run(TOKEN, reconnect=True)
+    try:
+        bot.run(TOKEN, reconnect=True)
+    except discord.PrivilegedIntentsRequired:
+        # Raid protection needs the members intent, which Discord gates behind
+        # a portal toggle. The library's own error doesn't say which switch.
+        raise RuntimeError(
+            "Discord rejected the privileged intents this bot requires.\n"
+            "Enable the SERVER MEMBERS INTENT at "
+            "https://discord.com/developers/applications -> your app -> Bot -> "
+            "Privileged Gateway Intents, then start the bot again."
+        ) from None
+
+
+if __name__ == "__main__":
+    run()

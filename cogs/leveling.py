@@ -67,6 +67,7 @@ class Leveling(commands.Cog):
 
     @commands.command()
     async def rank(self, ctx):
+        """Show your current level and XP."""
         async with self.bot.db.execute(
             "SELECT xp, level FROM levels WHERE user_id = ?",
             (ctx.author.id,),
@@ -110,6 +111,7 @@ class Leveling(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def levelreset(self, ctx, user: discord.Member = None):
+        """Reset one member's level, or every level if no member is given."""
         if user:
             await self.bot.db.execute(
                 "DELETE FROM levels WHERE user_id = ?",

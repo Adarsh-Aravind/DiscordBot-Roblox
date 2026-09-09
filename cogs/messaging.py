@@ -53,6 +53,7 @@ class Messaging(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def reply(self, ctx, user_id: int, *, content):
+        """DM a user by ID (used to answer relayed DMs)."""
         try:
             user = await self.bot.fetch_user(user_id)
             await user.send(content)
@@ -65,6 +66,7 @@ class Messaging(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def say(self, ctx, channel_id: int, *, content):
+        """Send a message to a channel by ID as the bot."""
         try:
             channel = await self.bot.fetch_channel(channel_id)
             await channel.send(content)
