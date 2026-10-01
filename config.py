@@ -6,6 +6,14 @@ fallbacks for backwards compatibility.
 """
 
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# Load .env here, not in main.py: every setting below is read at import time,
+# and config may be imported (by main or any cog) before main runs. The path
+# is explicit so it works regardless of the working directory.
+load_dotenv(Path(__file__).resolve().with_name(".env"))
 
 
 def _parse_ids(*env_vars: str) -> set[int]:

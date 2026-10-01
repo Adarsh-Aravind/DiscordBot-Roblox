@@ -2,12 +2,10 @@ import os
 import logging
 import discord
 from discord.ext import commands
-from dotenv import load_dotenv
 import aiosqlite
 
-import config
+import config  # loads .env
 
-load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 logging.basicConfig(level=logging.INFO)
