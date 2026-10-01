@@ -80,7 +80,8 @@ async def setup_hook():
         "cogs.youtube",
         "cogs.kick",
         "cogs.roblox",
-        "cogs.giveaway"
+        "cogs.giveaway",
+        "cogs.heartbeat"
     ]:
         await bot.load_extension(ext)
 
