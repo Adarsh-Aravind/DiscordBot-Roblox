@@ -1,6 +1,6 @@
 # RuneJerry Discord Bot
 
-RuneJerry is a robust, fully-featured, and highly customizable Discord bot built with `discord.py`. Designed around a modular cog-based architecture, it provides seamless real-time utilities, server management, and community engagement features.
+RuneJerry is a Python (`discord.py`) Discord bot for a Roblox gaming community. It looks up Roblox profiles, runs giveaways, tracks XP and levels, announces YouTube uploads and Kick streams, and protects the server with spam, scam and raid filtering. Every feature is a separate cog backed by SQLite.
 
 ## Core Features
 
@@ -15,6 +15,7 @@ RuneJerry is a robust, fully-featured, and highly customizable Discord bot built
 - **Scam & Phishing Filter**: Detects lookalike domains impersonating Discord, Roblox, Steam and friends, plus classic bait wording paired with an unrecognised link.
 - **Raid Protection**: Detects join-rate spikes and temporarily raises the server verification level, restoring the previous level automatically.
 - **Moderation Audit Log**: Every automated action is reported to a log channel so you can tell a working filter from one that is misfiring.
+- **Status Heartbeat**: Optionally pings the [ops-status](https://github.com/Adarsh-Aravind/ops-status) server every minute so the bot's health shows on the Live Ops panel at adarsharavind.com.
 - **Direct Messaging Relay**: Intercepts direct messages sent to the bot and forwards them to the bot owner, allowing remote two-way communication.
 
 ## Prerequisites
@@ -130,4 +131,5 @@ cogs/
   pingroles.py        self-assignable notification roles
   youtube.py          upload notifications
   kick.py             go-live notifications
+  heartbeat.py        optional status pings for the Live Ops panel
 ```
